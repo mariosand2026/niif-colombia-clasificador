@@ -1,68 +1,127 @@
-<!-- Añadir al inicio (antes del tipo de entidad) -->
-<div class="step" id="step-datos">
-  <h2>Datos de la empresa</h2>
-  <form id="datos-form">
-    <label>Nombre de la empresa <span>*</span></label>
-    <input type="text" name="nombre" required />
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NIIF Colombia Clasificador 2026</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>NIIF Colombia Clasificador 2026</h1>
+    <p>Descubre a qué grupo de NIIF pertenece tu empresa (basado en UVT 2025: $52.782)</p>
 
-    <label>NIT <span>*</span></label>
-    <input type="text" name="nit" required pattern="[0-9\-]{9,15}" placeholder="Ej: 123456789-0" />
+    <!-- PASO 1: Datos de la empresa -->
+    <div class="step" id="step-datos">
+      <h2>📋 Datos de la empresa</h2>
+      <form id="datos-form">
+        <label>Nombre de la empresa <span>*</span></label>
+        <input type="text" name="nombre" required placeholder="Ej: Café de Colombia S.A." />
 
-    <label>Sector económico</label>
-    <select name="sector">
-      <option value="">Selecciona</option>
-      <option value="comercio">Comercio</option>
-      <option value="industria">Industria</option>
-      <option value="servicios">Servicios</option>
-      <option value="tecnología">Tecnología</option>
-      <option value="otro">Otro</option>
-    </select>
+        <label>NIT <span>*</span></label>
+        <input type="text" name="nit" required placeholder="Ej: 123456789-0" pattern="[0-9\-]{9,15}" />
 
-    <label>Año fiscal <span>*</span></label>
-    <select name="anio" required>
-      <option value="2024">2024</option>
-      <option value="2023">2023</option>
-      <option value="2022">2022</option>
-    </select>
+        <label>Sector económico</label>
+        <select name="sector">
+          <option value="">Selecciona</option>
+          <option value="comercio">Comercio</option>
+          <option value="industria">Industria</option>
+          <option value="servicios">Servicios</option>
+          <option value="tecnología">Tecnología</option>
+          <option value="agro">Agropecuario</option>
+          <option value="otro">Otro</option>
+        </select>
 
-    <button type="button" onclick="continuarTipoEntidad()">Continuar</button>
-  </form>
-</div>
-<!-- Flujo: Empresa con fines de lucro -->
-<div class="step" id="step-profit" style="display:none;">
-  <h2>Empresa con fines de lucro</h2>
-  <form id="profit-form">
-    <label>¿Es una <strong>entidad de interés público</strong>? (ej: cotiza en bolsa, tiene 100+ aportantes, es vigilada por Superfinanciera, etc.) <span>*</span></label>
-    <select name="interes_publico" required>
-      <option value="">Selecciona</option>
-      <option value="si">Sí</option>
-      <option value="no">No</option>
-    </select>
+        <label>Año fiscal <span>*</span></label>
+        <select name="anio" required>
+          <option value="2026" selected>2026 (UVT 2025: $52.782)</option>
+          <option value="2025">2025 (UVT 2024: $47.052)</option>
+          <option value="2024">2024 (UVT 2023: $42.412)</option>
+        </select>
 
-    <!-- Resto de preguntas (igual que antes) -->
-    <label>¿Tiene más de 250 empleados? <span>*</span></label>
-    <select name="empleados" required><option value="">Selecciona</option><option value="si">Sí</option><option value="no">No</option></select>
+        <button type="button" onclick="continuarTipoEntidad()">Continuar →</button>
+      </form>
+    </div>
 
-    <label>¿Ingresos anuales > 50.000 UVT? (2024: ~$2.352.600.000) <span>*</span></label>
-    <select name="ingresos" required><option value="">Selecciona</option><option value="si">Sí</option><option value="no">No</option></select>
+    <!-- PASO 2: Tipo de entidad -->
+    <div class="step" id="step1" style="display:none;">
+      <h2>1. ¿Qué tipo de entidad es?</h2>
+      <button onclick="startForProfit()">Empresa con fines de lucro</button>
+      <button onclick="startNonProfit()">Entidad sin fines de lucro</button>
+    </div>
 
-    <label>¿Activos > 30.000 UVT? (2024: ~$1.411.560.000) <span>*</span></label>
-    <select name="activos" required><option value="">Selecciona</option><option value="si">Sí</option><option value="no">No</option></select>
+    <!-- PASO 3: Flujo empresa con fines de lucro -->
+    <div class="step" id="step-profit" style="display:none;">
+      <h2>Empresa con fines de lucro</h2>
+      <form id="profit-form">
+        <label>¿Es <strong>entidad de interés público</strong>? (Ej: cotiza en bolsa, 100+ aportantes, vigilada por Superfinanciera) <span>*</span></label>
+        <select name="interes_publico" required>
+          <option value="">Selecciona</option>
+          <option value="si">Sí</option>
+          <option value="no">No</option>
+        </select>
 
-    <button type="button" onclick="clasificarGrupo1()">Clasificar</button>
-  </form>
-</div>
+        <label>¿Tiene más de 250 empleados? <span>*</span></label>
+        <select name="empleados" required>
+          <option value="">Selecciona</option>
+          <option value="si">Sí</option>
+          <option value="no">No</option>
+        </select>
 
-<!-- Flujo: Sin fines de lucro -->
-<div class="step" id="step-nonprofit" style="display:none;">
-  <h2>Entidad sin fines de lucro</h2>
-  <form id="nonprofit-form">
-    <label>¿Es una <strong>entidad de interés público</strong>? (ej: tiene 100+ aportantes, recibe recursos públicos, es vigilada) <span>*</span></label>
-    <select name="interes_publico_efil" required><option value="">Selecciona</option><option value="si">Sí</option><option value="no">No</option></select>
+        <label>¿Ingresos anuales > 50.000 UVT? <span>*</span></label>
+        <select name="ingresos" required>
+          <option value="">Selecciona</option>
+          <option value="si">Sí</option>
+          <option value="no">No</option>
+        </select>
 
-    <label>¿Cumple alguna de estas condiciones? (250+ empleados, 50.000+ UVT en ingresos, 30.000+ UVT en activos) <span>*</span></label>
-    <select name="tamano_efil" required><option value="">Selecciona</option><option value="si">Sí</option><option value="no">No</option></select>
+        <label>¿Activos > 30.000 UVT? <span>*</span></label>
+        <select name="activos" required>
+          <option value="">Selecciona</option>
+          <option value="si">Sí</option>
+          <option value="no">No</option>
+        </select>
 
-    <button type="button" onclick="clasificarGrupo3()">Clasificar</button>
-  </form>
-</div>
+        <button type="button" onclick="clasificarGrupo1()">Clasificar</button>
+      </form>
+    </div>
+
+    <!-- PASO 3: Flujo sin fines de lucro -->
+    <div class="step" id="step-nonprofit" style="display:none;">
+      <h2>Entidad sin fines de lucro</h2>
+      <form id="nonprofit-form">
+        <label>¿Es <strong>entidad de interés público</strong>? (Ej: 100+ aportantes, recursos públicos, vigilada) <span>*</span></label>
+        <select name="interes_publico_efil" required>
+          <option value="">Selecciona</option>
+          <option value="si">Sí</option>
+          <option value="no">No</option>
+        </select>
+
+        <label>¿Cumple alguna de estas condiciones? (250+ empleados, 50.000+ UVT en ingresos, 30.000+ UVT en activos) <span>*</span></label>
+        <select name="tamano_efil" required>
+          <option value="">Selecciona</option>
+          <option value="si">Sí</option>
+          <option value="no">No</option>
+        </select>
+
+        <button type="button" onclick="clasificarGrupo3()">Clasificar</button>
+      </form>
+    </div>
+
+    <!-- PASO 4: Resultado -->
+    <div class="result" id="result" style="display:none;">
+      <h2>✅ Resultado</h2>
+      <div id="result-text"></div>
+      <button onclick="descargarPDF()">📄 Descargar PDF</button>
+      <button onclick="resetApp()">🔄 Clasificar otra empresa</button>
+    </div>
+
+    <footer>
+      <p>Basado en la <a href="https://www.minhacienda.gov.co" target="_blank">Resolución 057 de 2017</a> y <a href="https://www.siigo.com/blog/contador/cuales-son-los-grupos-en-niif/" target="_blank">Siigo</a>. No reemplaza asesoría contable.</p>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
