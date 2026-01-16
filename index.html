@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NIIF Colombia Clasificador</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>NIIF Colombia Clasificador</h1>
+    <p>Descubre a qué grupo de NIIF pertenece tu empresa.</p>
+
+    <!-- Tipo de entidad -->
+    <div class="step" id="step1">
+      <h2>1. ¿Qué tipo de entidad es?</h2>
+      <button onclick="startForProfit()">Empresa con fines de lucro</button>
+      <button onclick="startNonProfit()">Entidad sin fines de lucro</button>
+    </div>
+
+    <!-- Flujo: Empresa con fines de lucro -->
+    <div class="step" id="step-profit" style="display:none;">
+      <h2>Empresa con fines de lucro</h2>
+      <form id="profit-form">
+        <label>¿Cotiza en bolsa o ha emitido deuda pública? <span>*</span></label>
+        <select name="bolsa" required><option value="">Selecciona</option><option value="si">Sí</option><option value="no">No</option></select>
+
+        <label>¿Tiene más de 250 empleados? <span>*</span></label>
+        <select name="empleados" required><option value="">Selecciona</option><option value="si">Sí</option><option value="no">No</option></select>
+
+        <label>¿Ingresos anuales > 50.000 UVT? (2024: ~$2.352.600.000) <span>*</span></label>
+        <select name="ingresos" required><option value="">Selecciona</option><option value="si">Sí</option><option value="no">No</option></select>
+
+        <label>¿Activos > 30.000 UVT? (2024: ~$1.411.560.000) <span>*</span></label>
+        <select name="activos" required><option value="">Selecciona</option><option value="si">Sí</option><option value="no">No</option></select>
+
+        <button type="button" onclick="clasificarGrupo1()">Clasificar</button>
+      </form>
+    </div>
+
+    <!-- Flujo: Sin fines de lucro -->
+    <div class="step" id="step-nonprofit" style="display:none;">
+      <h2>Entidad sin fines de lucro</h2>
+      <form id="nonprofit-form">
+        <label>¿Cotiza en bolsa o ha emitido deuda pública? <span>*</span></label>
+        <select name="bolsa_efil" required><option value="">Selecciona</option><option value="si">Sí</option><option value="no">No</option></select>
+
+        <label>¿Cumple alguna de estas condiciones? (250+ empleados, 50.000+ UVT en ingresos, 30.000+ UVT en activos) <span>*</span></label>
+        <select name="tamano_efil" required><option value="">Selecciona</option><option value="si">Sí</option><option value="no">No</option></select>
+
+        <button type="button" onclick="clasificarGrupo3()">Clasificar</button>
+      </form>
+    </div>
+
+    <!-- Resultado -->
+    <div class="result" id="result" style="display:none;">
+      <h2>✅ Resultado</h2>
+      <div id="result-text"></div>
+      <button onclick="descargarPDF()">Descargar PDF</button>
+      <button onclick="resetApp()">Clasificar otra empresa</button>
+    </div>
+
+    <footer>
+      <p>Basado en la <a href="https://www.minhacienda.gov.co" target="_blank">Resolución 057 de 2017</a>. No reemplaza asesoría contable.</p>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
