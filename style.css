@@ -108,3 +108,20 @@ footer a:hover {
     padding: 15px;
   }
 }
+/* Añadir al final del archivo */
+#step-datos input[type="text"] {
+  width: 100%;
+  padding: 10px;
+  margin: 5px 0 15px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+#step-datos input:invalid {
+  border-color: #d9534f;
+}
+
+#step-datos input:valid {
+  border-color: #5cb85c;
+}
