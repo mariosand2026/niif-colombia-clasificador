@@ -28,3 +28,41 @@
     <button type="button" onclick="continuarTipoEntidad()">Continuar</button>
   </form>
 </div>
+<!-- Flujo: Empresa con fines de lucro -->
+<div class="step" id="step-profit" style="display:none;">
+  <h2>Empresa con fines de lucro</h2>
+  <form id="profit-form">
+    <label>¿Es una <strong>entidad de interés público</strong>? (ej: cotiza en bolsa, tiene 100+ aportantes, es vigilada por Superfinanciera, etc.) <span>*</span></label>
+    <select name="interes_publico" required>
+      <option value="">Selecciona</option>
+      <option value="si">Sí</option>
+      <option value="no">No</option>
+    </select>
+
+    <!-- Resto de preguntas (igual que antes) -->
+    <label>¿Tiene más de 250 empleados? <span>*</span></label>
+    <select name="empleados" required><option value="">Selecciona</option><option value="si">Sí</option><option value="no">No</option></select>
+
+    <label>¿Ingresos anuales > 50.000 UVT? (2024: ~$2.352.600.000) <span>*</span></label>
+    <select name="ingresos" required><option value="">Selecciona</option><option value="si">Sí</option><option value="no">No</option></select>
+
+    <label>¿Activos > 30.000 UVT? (2024: ~$1.411.560.000) <span>*</span></label>
+    <select name="activos" required><option value="">Selecciona</option><option value="si">Sí</option><option value="no">No</option></select>
+
+    <button type="button" onclick="clasificarGrupo1()">Clasificar</button>
+  </form>
+</div>
+
+<!-- Flujo: Sin fines de lucro -->
+<div class="step" id="step-nonprofit" style="display:none;">
+  <h2>Entidad sin fines de lucro</h2>
+  <form id="nonprofit-form">
+    <label>¿Es una <strong>entidad de interés público</strong>? (ej: tiene 100+ aportantes, recibe recursos públicos, es vigilada) <span>*</span></label>
+    <select name="interes_publico_efil" required><option value="">Selecciona</option><option value="si">Sí</option><option value="no">No</option></select>
+
+    <label>¿Cumple alguna de estas condiciones? (250+ empleados, 50.000+ UVT en ingresos, 30.000+ UVT en activos) <span>*</span></label>
+    <select name="tamano_efil" required><option value="">Selecciona</option><option value="si">Sí</option><option value="no">No</option></select>
+
+    <button type="button" onclick="clasificarGrupo3()">Clasificar</button>
+  </form>
+</div>
