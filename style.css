@@ -1,19 +1,249 @@
-/* (Mismo código anterior, pero con estas mejoras) */
-.step, .result {
-  animation: fadeIn 0.5s ease-in;
-  border-left: 5px solid #005b96;
+/* === ESTILOS GENERALES === */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
+  color: #333;
+  line-height: 1.6;
+  padding: 20px 0;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 30px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+  animation: fadeIn 0.8s ease-out;
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-/* Añadir estilo para microempresas */
+/* === TÍTULOS Y TEXTOS === */
+h1 {
+  text-align: center;
+  color: #005b96;
+  font-size: 1.8em;
+  margin-bottom: 10px;
+  border-bottom: 3px solid #005b96;
+  padding-bottom: 10px;
+}
+
+h2 {
+  color: #0077b6;
+  margin: 15px 0;
+  font-size: 1.3em;
+}
+
+p {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #555;
+  font-size: 1.1em;
+}
+
+/* === FORMULARIOS === */
+.step, .result {
+  margin: 20px 0;
+  padding: 25px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background: #f9f9f9;
+  border-left: 5px solid #005b96;
+  transition: all 0.3s ease;
+}
+
+.step:hover, .result:hover {
+  box-shadow: 0 5px 15px rgba(0, 91, 150, 0.1);
+}
+
+label {
+  display: block;
+  margin: 15px 0 5px;
+  font-weight: 600;
+  color: #005b96;
+}
+
+label span {
+  color: #d9534f;
+  font-size: 0.9em;
+}
+
+/* Inputs y selects */
+input[type="text"],
+select {
+  width: 100%;
+  padding: 12px 15px;
+  margin: 5px 0 15px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 16px;
+  transition: border 0.3s, box-shadow 0.3s;
+}
+
+input[type="text"]:focus,
+select:focus {
+  outline: none;
+  border-color: #0077b6;
+  box-shadow: 0 0 0 3px rgba(0, 119, 182, 0.2);
+}
+
+input[type="text"]:invalid {
+  border-color: #d9534f;
+}
+
+input[type="text"]:valid {
+  border-color: #5cb85c;
+}
+
+/* Botones */
+button {
+  width: 100%;
+  padding: 14px 20px;
+  margin: 10px 0;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s;
+  background: #005b96;
+  color: white;
+}
+
+button:hover {
+  background: #003d66;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 91, 150, 0.3);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+/* === ESTILOS ESPECIALES === */
+/* Microempresa badge */
 .microempresa-badge {
-  background-color: #d4edda;
+  background: #d4edda;
   color: #155724;
-  padding: 2px 6px;
+  padding: 4px 8px;
   border-radius: 4px;
   font-size: 0.8em;
+  font-weight: bold;
+  margin-left: 5px;
+}
+
+/* Resultados */
+.result {
+  background: #e6f7ff;
+  border-color: #0077b6;
+  border-left-width: 8px;
+}
+
+.result h3 {
+  color: #0077b6;
+  font-size: 1.4em;
+  margin-bottom: 15px;
+}
+
+.result ul {
+  margin: 15px 0;
+  padding-left: 20px;
+}
+
+.result li {
+  margin: 8px 0;
+  line-height: 1.5;
+}
+
+.result li::before {
+  content: "✓ ";
+  color: #5cb85c;
+  font-weight: bold;
+}
+
+/* Footer */
+footer {
+  margin-top: 30px;
+  text-align: center;
+  font-size: 0.9em;
+  color: #777;
+  border-top: 1px solid #eee;
+  padding-top: 20px;
+}
+
+footer a {
+  color: #005b96;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+footer a:hover {
+  text-decoration: underline;
+}
+
+/* Alertas */
+.alert {
+  padding: 10px 15px;
+  margin: 10px 0;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+
+.alert-warning {
+  background: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeaa7;
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 600px) {
+  .container {
+    margin: 10px;
+    padding: 15px;
+  }
+  
+  h1 {
+    font-size: 1.5em;
+  }
+  
+  .step, .result {
+    padding: 15px;
+  }
+  
+  button {
+    padding: 12px 15px;
+  }
+}
+
+@media (max-width: 400px) {
+  h1 {
+    font-size: 1.3em;
+  }
+  
+  .result li {
+    font-size: 0.9em;
+  }
+}
+
+/* === ICONOS (opcional) === */
+.icon {
+  vertical-align: middle;
+  margin-right: 8px;
+  font-size: 1.1em;
 }
