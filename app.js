@@ -1,10 +1,16 @@
-// UVT 2025: $52.782 (para proyecciones 2026)
-const UVT_2025 = 52782;
-const UVT_2024 = 47052;
-const UVT_2023 = 42412;
+// Constantes SMMLV (2025: $1.528.000)
+const SMMLV_2025 = 1528000;
+const SMMLV_2024 = 1423500;
+const SMMLV_2023 = 1300000;
+const ACTIVOS_LIMITE_G1 = 30000 * SMMLV_2025; // $45.840.000.000
+const ACTIVOS_LIMITE_MICRO = 500 * SMMLV_2025; // $764.000.000
+const INGRESOS_LIMITE_MICRO = 6000 * SMMLV_2025; // $9.168.000.000
+const EMPLEADOS_LIMITE_G1 = 200;
+const EMPLEADOS_LIMITE_MICRO = 10;
 
 let datosEmpresa = {};
 
+// === PASO 1: Datos de la empresa ===
 function continuarTipoEntidad() {
   const form = document.getElementById("datos-form");
   datosEmpresa = {
@@ -14,19 +20,22 @@ function continuarTipoEntidad() {
     anio: form.anio.value
   };
 
-  // Validación básica de formato NIT (no bloqueante)
   if (!/^[0-9]{9,15}-[0-9]{1}$/.test(datosEmpresa.nit)) {
     alert("⚠️ Formato de NIT inválido. Ej: 123456789-0 (pero puede continuar)");
   }
 
-  // Ocultar este paso y mostrar el tipo de entidad
   document.getElementById("step-datos").style.display = "none";
   document.getElementById("step1").style.display = "block";
 }
 
+// === PASO 2: Flujo principal ===
 function startForProfit() {
   document.getElementById("step1").style.display = "none";
-  document.getElementById("step-profit").style.display = "block";
+  if (confirm("¿Su empresa podría ser microempresa? (≤10 trabajadores, activos < $764M, ingresos < $9,168M)")) {
+    clasificarMicroempresa();
+  } else {
+    document.getElementById("step-profit").style.display = "block";
+  }
 }
 
 function startNonProfit() {
@@ -34,47 +43,91 @@ function startNonProfit() {
   document.getElementById("step-nonprofit").style.display = "block";
 }
 
+// === PASO 3: Clasificación Grupo 1 (Decreto 2420/2015) ===
 function clasificarGrupo1() {
   const form = document.getElementById("profit-form");
   const interes_publico = form.interes_publico.value;
-  const empleados = form.empleados.value;
-  const ingresos = form.ingresos.value;
-  const activos = form.activos.value;
+  const empleados_activos = form.empleados_activos.value;
+  const cotiza_bolsa = form.cotiza_bolsa.value;
+  const rendicion_cuentas = form.rendicion_cuentas.value;
+  const import_export = form.import_export.value;
+  const matriz_extranjera = form.matriz_extranjera.value;
 
-  if (!interes_publico || !empleados || !ingresos || !activos) {
-    alert("Por favor responde todas las preguntas.");
+  if (!interes_publico || !empleados_activos || !cotiza_bolsa || !rendicion_cuentas || !import_export || !matriz_extranjera) {
+    alert("Por favor responda todas las preguntas.");
     return;
   }
 
   let grupo = "2";
   let razones = [];
 
+  // OR lógico para Grupo 1
   if (interes_publico === "si") {
     grupo = "1";
-    razones.push("Es entidad de interés público (cotiza en bolsa, tiene 100+ aportantes, es vigilada, etc.)");
-  } else if (empleados === "si") {
+    razones.push("Entidad de interés público o emisor de valores");
+  } else if (empleados_activos === "si") {
     grupo = "1";
-    razones.push("Tiene más de 250 empleados");
-  } else if (ingresos === "si") {
+    razones.push(`≥${EMPLEADOS_LIMITE_G1} empleados o activos ≥${(ACTIVOS_LIMITE_G1/1e9).toFixed(1)} billones (30.000 SMMLV)`);
+  } else if (cotiza_bolsa === "si") {
     grupo = "1";
-    razones.push("Ingresos anuales superan 50.000 UVT");
-  } else if (activos === "si") {
+    razones.push("Cotiza en bolsa");
+  } else if (rendicion_cuentas === "si") {
     grupo = "1";
-    razones.push("Activos superan 30.000 UVT");
-  } else {
+    razones.push("Obligado a rendición pública de cuentas");
+  } else if (import_export === "si") {
+    grupo = "1";
+    razones.push(">50% de operaciones en importaciones/exportaciones");
+  } else if (matriz_extranjera === "si") {
+    grupo = "1";
+    razones.push("Matriz/subordinada de empresa extranjera con NIIF plenas");
+  }
+
+  if (grupo === "2") {
     razones.push("No cumple ninguna condición para el Grupo 1");
   }
 
   mostrarResultado(grupo, razones, "empresa");
 }
 
+// === PASO 3: Clasificación Grupo 3 (Microempresas) ===
+function clasificarMicroempresa() {
+  const empleados = prompt("Número de trabajadores (excluyendo consultores):");
+  const activos = prompt("Valor total de activos (excluida vivienda):");
+  const ingresos = prompt("Ingresos brutos anuales:");
+
+  if (!empleados || !activos || !ingresos) {
+    alert("Debe completar todos los datos.");
+    return;
+  }
+
+  // AND lógico para microempresas
+  const esMicro = 
+    parseInt(empleados) <= EMPLEADOS_LIMITE_MICRO &&
+    parseFloat(activos) < ACTIVOS_LIMITE_MICRO &&
+    parseFloat(ingresos) < INGRESOS_LIMITE_MICRO;
+
+  if (esMicro) {
+    mostrarResultado("3", [
+      `<span class="microempresa-badge">MICROEMPRESA</span>`,
+      `✔️ Trabajadores: ${empleados} (límite: ${EMPLEADOS_LIMITE_MICRO})`,
+      `✔️ Activos: $${parseFloat(activos).toLocaleString()} (límite: $${ACTIVOS_LIMITE_MICRO.toLocaleString()})`,
+      `✔️ Ingresos: $${parseFloat(ingresos).toLocaleString()} (límite: $${INGRESOS_LIMITE_MICRO.toLocaleString()})`,
+      "Cumple todos los requisitos (Decreto 2420/2015)"
+    ], "empresa");
+  } else {
+    alert("No califica como microempresa. Será clasificada en Grupo 1 o 2.");
+    document.getElementById("step-profit").style.display = "block";
+  }
+}
+
+// === PASO 3: Clasificación Grupo 3 (EFIL) ===
 function clasificarGrupo3() {
   const form = document.getElementById("nonprofit-form");
   const interes_publico = form.interes_publico_efil.value;
   const tamano = form.tamano_efil.value;
 
   if (!interes_publico || !tamano) {
-    alert("Por favor responde todas las preguntas.");
+    alert("Por favor responda todas las preguntas.");
     return;
   }
 
@@ -83,17 +136,18 @@ function clasificarGrupo3() {
 
   if (interes_publico === "si") {
     grupo = "1";
-    razones.push("Es entidad de interés público (100+ aportantes, recursos públicos, vigilada, etc.)");
+    razones.push("Entidad de interés público");
   } else if (tamano === "si") {
     grupo = "1";
-    razones.push("Supera umbrales de tamaño (empleados, ingresos o activos)");
+    razones.push("Supera umbrales de tamaño (200+ empleados, activos ≥30.000 SMMLV, cotiza en bolsa)");
   } else {
-    razones.push("No es de interés público y está bajo los umbrales de tamaño");
+    razones.push("Entidad sin fines de lucro que no pertenece al Grupo 1");
   }
 
   mostrarResultado(grupo, razones, "efil");
 }
 
+// === PASO 4: Mostrar resultado y PDF ===
 function mostrarResultado(grupo, razones, tipo) {
   document.getElementById("step-profit").style.display = "none";
   document.getElementById("step-nonprofit").style.display = "none";
@@ -102,7 +156,6 @@ function mostrarResultado(grupo, razones, tipo) {
 
   let grupoTexto = "";
   let norma = "";
-  let enlace = "https://www.minhacienda.gov.co";
 
   if (grupo === "1") {
     grupoTexto = "Grupo 1 (NIIF Completas)";
@@ -110,18 +163,18 @@ function mostrarResultado(grupo, razones, tipo) {
   } else if (grupo === "2") {
     grupoTexto = "Grupo 2 (NIIF para PYMES)";
     norma = "NIIF para PYMES";
-  } else {
-    grupoTexto = "Grupo 3 (NIIF para entidades sin fines de lucro)";
-    norma = "NIIF para EFIL";
+  } else if (grupo === "3") {
+    grupoTexto = "Grupo 3 (Contabilidad Simplificada)";
+    norma = "NIIF para Microempresas";
   }
 
   resultText.innerHTML = `
     <h3>🏢 ${grupoTexto}</h3>
     <p><strong>Norma aplicable:</strong> ${norma}</p>
-    <p><strong>Razones:</strong></p>
+    <p><strong>Requisitos cumplidos:</strong></p>
     <ul>${razones.map(r => `<li>${r}</li>`).join('')}</ul>
-    <p>📄 <a href="${enlace}" target="_blank">Consulta la Resolución 057 de 2017</a></p>
-    <p>💡 Recuerda revisar tu clasificación cada año.</p>
+    <p>📄 <a href="https://www.funcionpublica.gov.co/eva/gestornormativo/norma_pdf.aspx?i=115761" target="_blank">Decreto 2420/2015</a> | 
+       <a href="https://www.siigo.com/blog/contador/cuales-son-los-grupos-en-niif/" target="_blank">Guía Siigo</a></p>
   `;
 
   resultDiv.style.display = "block";
@@ -131,17 +184,17 @@ function descargarPDF() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
 
-  // Configurar UVT según año seleccionado
-  let uvtValor, uvtTexto;
+  // Configuración SMMLV
+  let smmlvValor, smmlvTexto;
   if (datosEmpresa.anio == "2026") {
-    uvtValor = UVT_2025;
-    uvtTexto = "52.782 (2025)";
+    smmlvValor = SMMLV_2025;
+    smmlvTexto = "1.528.000 (2025)";
   } else if (datosEmpresa.anio == "2025") {
-    uvtValor = UVT_2024;
-    uvtTexto = "47.052 (2024)";
+    smmlvValor = SMMLV_2024;
+    smmlvTexto = "1.423.500 (2024)";
   } else {
-    uvtValor = UVT_2023;
-    uvtTexto = "42.412 (2023)";
+    smmlvValor = SMMLV_2023;
+    smmlvTexto = "1.300.000 (2023)";
   }
 
   // Encabezado
@@ -155,8 +208,8 @@ function descargarPDF() {
   doc.text(`Empresa: ${datosEmpresa.nombre}`, 20, 35);
   doc.text(`NIT: ${datosEmpresa.nit}`, 20, 42);
   doc.text(`Sector: ${datosEmpresa.sector || "No especificado"}`, 20, 49);
-  doc.text(`Año fiscal: ${datosEmpresa.anio} (UVT: $${uvtValor.toLocaleString()})`, 20, 56);
-  doc.line(20, 58, 190, 58); // Línea divisoria
+  doc.text(`Año fiscal: ${datosEmpresa.anio} (SMMLV: $${smmlvValor.toLocaleString()})`, 20, 56);
+  doc.line(20, 58, 190, 58);
 
   // Resultado
   doc.setFontSize(14);
@@ -166,18 +219,16 @@ function descargarPDF() {
   doc.setFontSize(12);
   doc.setTextColor(0, 0, 0);
   const resultadoHTML = document.getElementById("result-text").innerHTML;
-  const resultadoTexto = resultadoHTML.replace(/<[^>]*>/g, ""); // Eliminar etiquetas HTML
+  const resultadoTexto = resultadoHTML.replace(/<[^>]*>/g, "");
   const lines = doc.splitTextToSize(resultadoTexto, 170);
   doc.text(lines, 20, 80);
 
   // Pie de página
   doc.setFontSize(9);
   doc.setTextColor(100, 100, 100);
-  doc.text("Fuente: Resolución 057 de 2017 (MinHacienda) | Basado en Siigo.com", 20, 260);
-  doc.text("Este documento no sustituye asesoría contable profesional.", 20, 265);
+  doc.text("Basado en el Decreto 2420/2015. No sustituye asesoría contable profesional.", 20, 260);
 
-  // Descargar
-  doc.save(`NIIF_${datosEmpresa.nombre.replace(/\s/g, "_")}_${datosEmpresa.anio}.pdf`);
+  doc.save(`NIIF_${datosEmpresa.nombre.replace(/\s/g, "_")}.pdf`);
 }
 
 function resetApp() {
