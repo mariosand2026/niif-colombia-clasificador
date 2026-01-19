@@ -217,16 +217,18 @@ function descargarPDF() {
   doc.line(20, 58, 190, 58);
 
   // Resultado
+  // Reemplazar el bloque de resultado con:
   doc.setFontSize(14);
   doc.setTextColor(0, 91, 150);
-  doc.text("Resultado:", 20, 70);
+  doc.text("Apreciados amigos,", 20, 80);
+  doc.text(`usted pertenece al ${grupoTexto} por las siguientes características:`, 20, 90);
 
+  // Lista de características (con mejor formato)
   doc.setFontSize(12);
   doc.setTextColor(0, 0, 0);
-  const resultadoHTML = document.getElementById("result-text").innerHTML;
-  const resultadoTexto = resultadoHTML.replace(/<[^>]*>/g, "");
-  const lines = doc.splitTextToSize(resultadoTexto, 170);
-  doc.text(lines, 20, 80);
+  const razonesTexto = document.getElementById("result-text").innerText;
+  const razonesLines = doc.splitTextToSize(razonesTexto.replace(/✓/g, ""), 170);
+  doc.text(razonesLines, 20, 100);
 
   // Pie de página
   doc.setFontSize(9);
