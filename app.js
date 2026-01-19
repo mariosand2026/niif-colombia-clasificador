@@ -181,6 +181,11 @@ function mostrarResultado(grupo, razones, tipo) {
 }
 
 function descargarPDF() {
+  // En la función descargarPDF(), añadir al inicio:
+  doc.setFontSize(10);
+  doc.setTextColor(0, 0, 0);
+  doc.text("App elaborada por: MG ESP CP Mario Andrés Narváez Delgado", 20, 275);
+  
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
 
