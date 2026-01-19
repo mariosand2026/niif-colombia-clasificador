@@ -20,8 +20,15 @@
         <input type="text" name="nombre" required placeholder="Ej: Café de Colombia S.A." />
 
         <label>NIT <span>*</span></label>
-        <input type="text" name="nit" required placeholder="Ej: 123456789-0" pattern="[0-9\-]{9,15}" />
+        <input type="text" id="nit-input" name="nit" required 
+       placeholder="Ej: 900123456-7" 
+       pattern="[0-9\-]{9,15}"
+       oninput="validarNIT(this.value)"/>
+        <span id="dv-result" style="font-size: 0.8em; color: #555;"></span>
 
+<label>Nombre (autocompletado) <span>*</span></label>
+<input type="text" id="nombre-automatico" name="nombre" required
+       placeholder="Se completa automáticamente si el NIT es válido"/>
         <label>Sector económico</label>
         <select name="sector">
           <option value="">Selecciona</option>
