@@ -245,3 +245,56 @@ function resetApp() {
   document.getElementById("nonprofit-form").reset();
   document.getElementById("datos-form").reset();
 }
+  // === Validación NIT + Nombre automático ===
+function calcularDV(nit) {
+  const nitLimpio = nit.replace(/[^0-9]/g, "");
+  const coeficientes = [41, 37, 29, 23, 19, 17, 13, 7, 3];
+  let suma = 0;
+
+  for (let i = 0; i < nitLimpio.length; i++) {
+    suma += parseInt(nitLimpio[i]) * coeficientes[i];
+  }
+  
+  const modulo = 11 - (suma % 11);
+  return (modulo >= 10) ? 0 : modulo;
+}
+
+function buscarNombreNIT(nit) {
+  // Base de datos de ejemplo (en producción, usar API externa)
+  const nitsConocidos = {
+    "900123456-7": "Café de Colombia S.A.",
+    "800987654-3": "Tecnologías MG Ltda."
+  };
+
+  const nitLimpio = nit.replace(/[^0-9]/g, "");
+  return nitsConocidos[nitLimpio] || "Nombre no encontrado";
+}
+
+// === Evento en el campo NIT (index.html) ===
+// Añadir este atributo al input de NIT:
+// oninput="validarNIT(this.value)"
+
+// Función de validación (en app.js)
+function validarNIT(valor) {
+  const input = document.getElementById("nit-input");
+  const nombreField = document.getElementById("nombre-automatico");
+  
+  if (valor.length > 8) {
+    const nitLimpio = valor.replace(/[^0-9]/g, "");
+    const dvCalculado = calcularDV(nitLimpio);
+    const dvIngresado = valor.split("-")[1] || "";
+    
+    // Mostrar DV calculado
+    document.getElementById("dv-result").textContent = 
+      `DV calculado: ${dvCalculado} (ingresó: ${dvIngresado})`;
+    
+    // Mostrar nombre si coincide
+    if (dvCalculado.toString() === dvIngresado) {
+      nombreField.value = buscarNombreNIT(nitLimpio);
+      input.style.borderColor = "#5cb85c";
+    } else {
+      nombreField.value = "DV no coincide";
+      input.style.borderColor = "#d9534f";
+    }
+  }
+}
