@@ -11,6 +11,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
+
 <div class="container">
 
   <h1>📊 MIA – Clasificador NIIF Colombia</h1>
@@ -37,9 +38,10 @@
 
       <label>Año fiscal <span>*</span></label>
       <select name="anio" required>
-        <option value="2026" selected>2026</option>
-        <option value="2025">2025</option>
-        <option value="2024">2024</option>
+        <option value="">Selecciona</option>
+        <option value="2026">2026 (SMMLV 2025: $1.528.000)</option>
+        <option value="2025">2025 (SMMLV 2024: $1.423.500)</option>
+        <option value="2024">2024 (SMMLV 2023: $1.300.000)</option>
       </select>
 
       <button type="button" onclick="continuarTipoEntidad()">Continuar →</button>
@@ -51,6 +53,80 @@
     <h2>1. ¿Qué tipo de entidad es?</h2>
     <button onclick="startForProfit()">Empresa con fines de lucro</button>
     <button onclick="startNonProfit()">Entidad sin fines de lucro</button>
+  </div>
+
+  <!-- PASO 3: CON FINES DE LUCRO -->
+  <div class="step" id="step-profit" style="display:none;">
+    <h2>Empresa con fines de lucro</h2>
+
+    <form id="profit-form">
+      <label>¿Entidad de interés público o emisor de valores?</label>
+      <select name="interes_publico" required>
+        <option value="">Selecciona</option>
+        <option value="si">Sí</option>
+        <option value="no">No</option>
+      </select>
+
+      <label>¿≥200 empleados o activos ≥30.000 SMMLV?</label>
+      <select name="empleados_activos" required>
+        <option value="">Selecciona</option>
+        <option value="si">Sí</option>
+        <option value="no">No</option>
+      </select>
+
+      <label>¿Cotiza en bolsa?</label>
+      <select name="cotiza_bolsa" required>
+        <option value="">Selecciona</option>
+        <option value="si">Sí</option>
+        <option value="no">No</option>
+      </select>
+
+      <label>¿Obligado a rendición pública de cuentas?</label>
+      <select name="rendicion_cuentas" required>
+        <option value="">Selecciona</option>
+        <option value="si">Sí</option>
+        <option value="no">No</option>
+      </select>
+
+      <label>¿>50% operaciones importación/exportación?</label>
+      <select name="import_export" required>
+        <option value="">Selecciona</option>
+        <option value="si">Sí</option>
+        <option value="no">No</option>
+      </select>
+
+      <label>¿Matriz o subordinada extranjera NIIF plenas?</label>
+      <select name="matriz_extranjera" required>
+        <option value="">Selecciona</option>
+        <option value="si">Sí</option>
+        <option value="no">No</option>
+      </select>
+
+      <button type="button" onclick="clasificarGrupo1()">Clasificar</button>
+    </form>
+  </div>
+
+  <!-- PASO 3: SIN FINES DE LUCRO -->
+  <div class="step" id="step-nonprofit" style="display:none;">
+    <h2>Entidad sin fines de lucro</h2>
+
+    <form id="nonprofit-form">
+      <label>¿Entidad de interés público?</label>
+      <select name="interes_publico_efil" required>
+        <option value="">Selecciona</option>
+        <option value="si">Sí</option>
+        <option value="no">No</option>
+      </select>
+
+      <label>¿Supera límites de tamaño?</label>
+      <select name="tamano_efil" required>
+        <option value="">Selecciona</option>
+        <option value="si">Sí</option>
+        <option value="no">No</option>
+      </select>
+
+      <button type="button" onclick="clasificarGrupo3()">Clasificar</button>
+    </form>
   </div>
 
   <!-- RESULTADO -->
