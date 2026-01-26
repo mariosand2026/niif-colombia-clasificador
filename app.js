@@ -5,21 +5,16 @@ const SMMLV_2025 = 1528000;
 const SMMLV_2024 = 1423500;
 const SMMLV_2023 = 1300000;
 
-const ACTIVOS_LIMITE_G1 = 30000 * SMMLV_2025;
 const ACTIVOS_LIMITE_MICRO = 500 * SMMLV_2025;
 const INGRESOS_LIMITE_MICRO = 6000 * SMMLV_2025;
-const EMPLEADOS_LIMITE_G1 = 200;
 const EMPLEADOS_LIMITE_MICRO = 10;
+const EMPLEADOS_LIMITE_G1 = 200;
 
 // ===============================
 // VARIABLES GLOBALES
 // ===============================
 let datosEmpresa = {};
-let resultadoPDF = {
-  grupoTexto: "",
-  norma: "",
-  razones: []
-};
+let resultadoPDF = { grupo: "", norma: "", razones: [] };
 
 // ===============================
 // PASO 1
@@ -27,15 +22,18 @@ let resultadoPDF = {
 function continuarTipoEntidad() {
   const form = document.getElementById("datos-form");
 
-  if (!form.checkValidity()) {
-    alert("Completa los campos obligatorios");
+  const nombre = form.nombre.value.trim();
+  const anio = form.anio.value;
+
+  if (!nombre || !anio) {
+    alert("Completa el nombre de la empresa y el año fiscal.");
     return;
   }
 
   datosEmpresa = {
-    nombre: form.nombre.value,
+    nombre,
     sector: form.sector.value,
-    anio: form.anio.value
+    anio
   };
 
   document.getElementById("step-datos").style.display = "none";
@@ -66,7 +64,7 @@ function startNonProfit() {
 function clasificarGrupo1() {
   const form = document.getElementById("profit-form");
 
-  const respuestas = [
+  const campos = [
     form.interes_publico.value,
     form.empleados_activos.value,
     form.cotiza_bolsa.value,
@@ -75,8 +73,8 @@ function clasificarGrupo1() {
     form.matriz_extranjera.value
   ];
 
-  if (respuestas.includes("")) {
-    alert("Responda todas las preguntas");
+  if (campos.includes("")) {
+    alert("Responde todas las preguntas.");
     return;
   }
 
@@ -85,7 +83,7 @@ function clasificarGrupo1() {
 
   if (form.interes_publico.value === "si") {
     grupo = "1";
-    razones.push("Entidad de interés público o emisor de valores");
+    razones.push("Entidad de interés público");
   } else if (form.empleados_activos.value === "si") {
     grupo = "1";
     razones.push(`≥ ${EMPLEADOS_LIMITE_G1} empleados o activos ≥ 30.000 SMMLV`);
@@ -94,16 +92,14 @@ function clasificarGrupo1() {
     razones.push("Cotiza en bolsa");
   } else if (form.rendicion_cuentas.value === "si") {
     grupo = "1";
-    razones.push("Obligado a rendición pública de cuentas");
+    razones.push("Rendición pública de cuentas");
   } else if (form.import_export.value === "si") {
     grupo = "1";
-    razones.push(">50% de operaciones internacionales");
+    razones.push(">50% operaciones internacionales");
   } else if (form.matriz_extranjera.value === "si") {
     grupo = "1";
-    razones.push("Matriz/subordinada extranjera NIIF plenas");
-  }
-
-  if (grupo === "2") {
+    razones.push("Vinculación extranjera NIIF plenas");
+  } else {
     razones.push("No cumple criterios de Grupo 1");
   }
 
@@ -115,11 +111,11 @@ function clasificarGrupo1() {
 // ===============================
 function clasificarMicroempresa() {
   const empleados = parseInt(prompt("Número de trabajadores:"));
-  const activos = parseFloat(prompt("Valor total de activos:"));
-  const ingresos = parseFloat(prompt("Ingresos brutos anuales:"));
+  const activos = parseFloat(prompt("Total activos:"));
+  const ingresos = parseFloat(prompt("Ingresos anuales:"));
 
   if (isNaN(empleados) || isNaN(activos) || isNaN(ingresos)) {
-    alert("Datos inválidos");
+    alert("Datos inválidos.");
     return;
   }
 
@@ -130,15 +126,39 @@ function clasificarMicroempresa() {
 
   if (esMicro) {
     mostrarResultado("3", [
-      "Cumple requisitos de microempresa",
+      "Cumple criterios de microempresa",
       `Empleados: ${empleados}`,
       `Activos: $${activos.toLocaleString()}`,
       `Ingresos: $${ingresos.toLocaleString()}`
     ]);
   } else {
-    alert("No califica como microempresa");
+    alert("No clasifica como microempresa.");
     document.getElementById("step-profit").style.display = "block";
   }
+}
+
+// ===============================
+// SIN FINES DE LUCRO
+// ===============================
+function clasificarGrupo3() {
+  const form = document.getElementById("nonprofit-form");
+
+  if (!form.interes_publico_efil.value || !form.tamano_efil.value) {
+    alert("Responde todas las preguntas.");
+    return;
+  }
+
+  let grupo = "3";
+  let razones = [];
+
+  if (form.interes_publico_efil.value === "si" || form.tamano_efil.value === "si") {
+    grupo = "1";
+    razones.push("Entidad sin fines de lucro de interés público");
+  } else {
+    razones.push("EFIL que no pertenece al Grupo 1");
+  }
+
+  mostrarResultado(grupo, razones);
 }
 
 // ===============================
@@ -166,7 +186,7 @@ function mostrarResultado(grupo, razones) {
 
   document.getElementById("result-text").innerHTML = `
     <h3>${grupoTexto}</h3>
-    <p><strong>Norma:</strong> ${norma}</p>
+    <p><strong>Norma aplicable:</strong> ${norma}</p>
     <ul>${razones.map(r => `<li>${r}</li>`).join("")}</ul>
   `;
 
@@ -174,7 +194,7 @@ function mostrarResultado(grupo, razones) {
 }
 
 // ===============================
-// PDF (FUNCIONANDO)
+// PDF
 // ===============================
 function descargarPDF() {
   const { jsPDF } = window.jspdf;
@@ -191,13 +211,10 @@ function descargarPDF() {
   doc.line(20, 55, 190, 55);
 
   doc.setFontSize(13);
-  doc.text("Resultado de clasificación", 20, 65);
+  doc.text(resultadoPDF.grupoTexto, 20, 70);
+  doc.text(`Norma: ${resultadoPDF.norma}`, 20, 78);
 
-  doc.setFontSize(11);
-  doc.text(resultadoPDF.grupoTexto, 20, 75);
-  doc.text(`Norma aplicable: ${resultadoPDF.norma}`, 20, 82);
-
-  let y = 92;
+  let y = 90;
   resultadoPDF.razones.forEach(r => {
     doc.text(`• ${r}`, 25, y);
     y += 8;
