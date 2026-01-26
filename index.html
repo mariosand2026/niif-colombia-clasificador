@@ -3,117 +3,72 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>NIIF Colombia Clasificador (Decreto 2420/2015)</title>
+  <title>MIA – Clasificador NIIF Colombia</title>
+
   <link rel="stylesheet" href="style.css" />
+
+  <!-- jsPDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
-  <div class="container">
-    <h1>📊 NIIF Colombia Clasificador</h1>
-    <p>Basado en el <strong>Decreto 2420/2015</strong> y Ley 1314/2009</p>
+<div class="container">
 
-    <!-- PASO 1: Datos de la empresa -->
-    <div class="step" id="step-datos">
-      <h2>📋 Datos de la empresa</h2>
-      <form id="datos-form">
-        <label>Nombre de la empresa <span>*</span></label>
-        <input type="text" name="nombre" required placeholder="Ej: Café de Colombia S.A." />
+  <h1>📊 MIA – Clasificador NIIF Colombia</h1>
+  <p>Basado en el <strong>Decreto 2420 de 2015</strong> y Ley 1314 de 2009</p>
 
-        <label>NIT <span>*</span></label>
-        <input type="text" id="nit-input" name="nit" required 
-       placeholder="Ej: 900123456-7" 
-       pattern="[0-9\-]{9,15}"
-       oninput="validarNIT(this.value)"/>
-        <span id="dv-result" style="font-size: 0.8em; color: #555;"></span>
+  <!-- PASO 1 -->
+  <div class="step" id="step-datos">
+    <h2>📋 Datos de la empresa</h2>
 
-<label>Nombre (autocompletado) <span>*</span></label>
-<input type="text" id="nombre-automatico" name="nombre" required
-       placeholder="Se completa automáticamente si el NIT es válido"/>
-        <label>Sector económico</label>
-        <select name="sector">
-          <option value="">Selecciona</option>
-          <option value="comercio">Comercio</option>
-          <option value="industria">Industria</option>
-          <option value="servicios">Servicios</option>
-          <option value="tecnología">Tecnología</option>
-          <option value="agro">Agropecuario</option>
-          <option value="otro">Otro</option>
-        </select>
+    <form id="datos-form">
+      <label>Nombre de la empresa <span>*</span></label>
+      <input type="text" name="nombre" required placeholder="Ej: Café de Colombia S.A." />
 
-        <label>Año fiscal <span>*</span></label>
-        <select name="anio" required>
-          <option value="2026" selected>2026 (SMMLV 2025: $1.528.000)</option>
-          <option value="2025">2025 (SMMLV 2024: $1.423.500)</option>
-          <option value="2024">2024 (SMMLV 2023: $1.300.000)</option>
-        </select>
+      <label>Sector económico</label>
+      <select name="sector">
+        <option value="">Selecciona</option>
+        <option value="comercio">Comercio</option>
+        <option value="industria">Industria</option>
+        <option value="servicios">Servicios</option>
+        <option value="tecnologia">Tecnología</option>
+        <option value="agro">Agropecuario</option>
+        <option value="otro">Otro</option>
+      </select>
 
-        <button type="button" onclick="continuarTipoEntidad()">Continuar →</button>
-      </form>
-    </div>
+      <label>Año fiscal <span>*</span></label>
+      <select name="anio" required>
+        <option value="2026" selected>2026</option>
+        <option value="2025">2025</option>
+        <option value="2024">2024</option>
+      </select>
 
-    <!-- PASO 2: Tipo de entidad -->
-    <div class="step" id="step1" style="display:none;">
-      <h2>1. ¿Qué tipo de entidad es?</h2>
-      <button onclick="startForProfit()">Empresa con fines de lucro</button>
-      <button onclick="startNonProfit()">Entidad sin fines de lucro</button>
-    </div>
-
-    <!-- PASO 3: Flujo empresa con fines de lucro -->
-    <div class="step" id="step-profit" style="display:none;">
-      <h2>Empresa con fines de lucro</h2>
-      <form id="profit-form">
-        <!-- Grupo 1: Criterios ampliados -->
-        <label>¿Es <strong>entidad de interés público</strong> o <strong>emisor de valores</strong>? <span>*</span></label>
-        <select name="interes_publico" required><option value="">Selecciona</option><option value="si">Sí</option><option value="no">No</option></select>
-
-        <label>¿Tiene <strong>≥200 empleados</strong> o <strong>activos ≥30.000 SMMLV</strong>? <span>*</span></label>
-        <select name="empleados_activos" required><option value="">Selecciona</option><option value="si">Sí</option><option value="no">No</option></select>
-
-        <label>¿Cotiza en bolsa? <span>*</span></label>
-        <select name="cotiza_bolsa" required><option value="">Selecciona</option><option value="si">Sí</option><option value="no">No</option></select>
-
-        <label>¿Obligado a rendición pública de cuentas? <span>*</span></label>
-        <select name="rendicion_cuentas" required><option value="">Selecciona</option><option value="si">Sí</option><option value="no">No</option></select>
-
-        <label>¿>50% de operaciones en importaciones/exportaciones? <span>*</span></label>
-        <select name="import_export" required><option value="">Selecciona</option><option value="si">Sí</option><option value="no">No</option></select>
-
-        <label>¿Es matriz/subordinada de empresa extranjera con NIIF plenas? <span>*</span></label>
-        <select name="matriz_extranjera" required><option value="">Selecciona</option><option value="si">Sí</option><option value="no">No</option></select>
-
-        <button type="button" onclick="clasificarGrupo1()">Clasificar</button>
-      </form>
-    </div>
-
-    <!-- PASO 3: Flujo sin fines de lucro -->
-    <div class="step" id="step-nonprofit" style="display:none;">
-      <h2>Entidad sin fines de lucro</h2>
-      <form id="nonprofit-form">
-        <label>¿Es entidad de interés público? <span>*</span></label>
-        <select name="interes_publico_efil" required><option value="">Selecciona</option><option value="si">Sí</option><option value="no">No</option></select>
-
-        <label>¿Cumple alguna de estas condiciones? (200+ empleados, activos ≥30.000 SMMLV, cotiza en bolsa) <span>*</span></label>
-        <select name="tamano_efil" required><option value="">Selecciona</option><option value="si">Sí</option><option value="no">No</option></select>
-
-        <button type="button" onclick="clasificarGrupo3()">Clasificar</button>
-      </form>
-    </div>
-
-    <!-- PASO 4: Resultado -->
-    <div class="result" id="result" style="display:none;">
-      <h2>✅ Resultado</h2>
-      <div id="result-text"></div>
-      <button onclick="descargarPDF()">📄 Descargar PDF</button>
-      <button onclick="resetApp()">🔄 Clasificar otra empresa</button>
-    </div>
-
-    <footer>
-      <p><strong>App elaborada por:</strong> MG ESP CP Mario Andrés Narváez Delgado</p>
-      <p>Basado en el <a href="https://www.funcionpublica.gov.co/eva/gestornormativo/norma_pdf.aspx?i=115761" target="_blank">Decreto 2420/2015</a>.</p>
-      <p>⚠️ Esta app no reemplaza asesoría contable profesional.</p>
-    </footer>
+      <button type="button" onclick="continuarTipoEntidad()">Continuar →</button>
+    </form>
   </div>
 
-  <script src="app.js"></script>
+  <!-- PASO 2 -->
+  <div class="step" id="step1" style="display:none;">
+    <h2>1. ¿Qué tipo de entidad es?</h2>
+    <button onclick="startForProfit()">Empresa con fines de lucro</button>
+    <button onclick="startNonProfit()">Entidad sin fines de lucro</button>
+  </div>
+
+  <!-- RESULTADO -->
+  <div class="result" id="result" style="display:none;">
+    <h2>✅ Resultado</h2>
+    <div id="result-text"></div>
+    <button onclick="descargarPDF()">📄 Descargar PDF</button>
+    <button onclick="resetApp()">🔄 Nueva clasificación</button>
+  </div>
+
+  <footer>
+    <p><strong>MIA – por Mario Andrés Narváez Delgado</strong></p>
+    <p>Basado en el Decreto 2420 de 2015</p>
+    <p>⚠️ Esta app no reemplaza asesoría contable profesional</p>
+  </footer>
+
+</div>
+
+<script src="app.js"></script>
 </body>
 </html>
