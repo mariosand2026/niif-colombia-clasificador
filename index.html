@@ -1,64 +1,131 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>MIA | NIIF Colombia</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MIA | Clasificador NIIF Colombia</title>
 
-  <!-- CSS -->
-  <link rel="stylesheet" href="style.css">
-</head>
-
-<body>
-
-  <header class="header">
-    <img src="logo-mia.png" alt="MIA Logo" class="logo">
-    <h1>MIA</h1>
-    <p class="subtitle">
-      Métodos de Inteligencia Artificial<br>
-      <span>IA aplicada para todos los sectores</span>
-    </p>
-  </header>
-
-  <main class="card">
-
-    <h2>Clasificador NIIF – Colombia</h2>
-
-    <label>Tipo de entidad</label>
-    <select id="tipoEntidad">
-      <option value="">Seleccione…</option>
-      <option value="natural">Persona Natural</option>
-      <option value="juridica">Persona Jurídica</option>
-    </select>
-
-    <label>Activos Totales (COP)</label>
-    <input type="number" id="activos" placeholder="Ej: 350000000">
-
-    <label>Ingresos Anuales (COP)</label>
-    <input type="number" id="ingresos" placeholder="Ej: 900000000">
-
-    <button onclick="clasificar()">Clasificar</button>
-
-    <div id="resultado" class="resultado"></div>
-
-    <button id="btnPDF" onclick="generarPDF()" style="display:none">
-      Descargar PDF
-    </button>
-
-  </main>
-
-  <footer class="footer">
-    <p>
-      MIA – IA aplicada para todos los sectores<br>
-      <strong>by Mario Andrés Narváez Delgado</strong>
-    </p>
-  </footer>
+  <link rel="stylesheet" href="style.css" />
 
   <!-- jsPDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
 
-  <!-- APP -->
-  <script src="app.js"></script>
+<body>
+<div class="container">
 
+  <header>
+    <h1>🤖 MIA</h1>
+    <p><strong>IA aplicada para todos los sectores</strong></p>
+    <p>Clasificador NIIF Colombia – Decreto 2420 de 2015</p>
+  </header>
+
+  <!-- PASO 1 -->
+  <div class="step" id="step-datos">
+    <h2>📋 Datos de la empresa</h2>
+
+    <form id="datos-form">
+      <label>Nombre de la empresa <span>*</span></label>
+      <input type="text" id="nombreEmpresa" required placeholder="Ej: Café de Colombia S.A." />
+
+      <label>Sector económico</label>
+      <select id="sector">
+        <option value="">Selecciona</option>
+        <option>Comercio</option>
+        <option>Industria</option>
+        <option>Servicios</option>
+        <option>Tecnología</option>
+        <option>Agropecuario</option>
+        <option>Otro</option>
+      </select>
+
+      <label>Año fiscal <span>*</span></label>
+      <select id="anio" required>
+        <option value="2026" selected>2026</option>
+        <option value="2025">2025</option>
+        <option value="2024">2024</option>
+      </select>
+
+      <button type="button" onclick="continuarTipoEntidad()">Continuar →</button>
+    </form>
+  </div>
+
+  <!-- PASO 2 -->
+  <div class="step" id="step1" style="display:none;">
+    <h2>1. Tipo de entidad</h2>
+    <button onclick="startForProfit()">Empresa con fines de lucro</button>
+    <button onclick="startNonProfit()">Entidad sin fines de lucro</button>
+  </div>
+
+  <!-- CON FINES DE LUCRO -->
+  <div class="step" id="step-profit" style="display:none;">
+    <h2>Empresa con fines de lucro</h2>
+
+    <form id="profit-form">
+      <label>¿Entidad de interés público o emisor de valores?</label>
+      <select id="interes_publico">
+        <option value="">Selecciona</option>
+        <option value="si">Sí</option>
+        <option value="no">No</option>
+      </select>
+
+      <label>¿≥200 empleados o activos ≥30.000 SMMLV?</label>
+      <select id="empleados_activos">
+        <option value="">Selecciona</option>
+        <option value="si">Sí</option>
+        <option value="no">No</option>
+      </select>
+
+      <label>¿Cotiza en bolsa?</label>
+      <select id="cotiza_bolsa">
+        <option value="">Selecciona</option>
+        <option value="si">Sí</option>
+        <option value="no">No</option>
+      </select>
+
+      <button type="button" onclick="clasificarGrupo1()">Clasificar</button>
+    </form>
+  </div>
+
+  <!-- SIN FINES DE LUCRO -->
+  <div class="step" id="step-nonprofit" style="display:none;">
+    <h2>Entidad sin fines de lucro</h2>
+
+    <form id="nonprofit-form">
+      <label>¿Entidad de interés público?</label>
+      <select id="interes_publico_efil">
+        <option value="">Selecciona</option>
+        <option value="si">Sí</option>
+        <option value="no">No</option>
+      </select>
+
+      <label>¿Cumple criterios de tamaño (NIIF Plenas)?</label>
+      <select id="tamano_efil">
+        <option value="">Selecciona</option>
+        <option value="si">Sí</option>
+        <option value="no">No</option>
+      </select>
+
+      <button type="button" onclick="clasificarGrupo3()">Clasificar</button>
+    </form>
+  </div>
+
+  <!-- RESULTADO -->
+  <div class="result" id="result" style="display:none;">
+    <h2>✅ Resultado</h2>
+    <div id="result-text"></div>
+    <button onclick="descargarPDF()">📄 Descargar PDF</button>
+    <button onclick="resetApp()">🔄 Nueva clasificación</button>
+  </div>
+
+  <footer>
+    <p><strong>MIA – IA aplicada para todos los sectores</strong></p>
+    <p>by Mario Andrés Narváez Delgado</p>
+    <p>⚠️ Uso informativo – no reemplaza asesoría profesional</p>
+  </footer>
+
+</div>
+
+<script src="app.js"></script>
 </body>
 </html>
