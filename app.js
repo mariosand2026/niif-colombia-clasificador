@@ -1,99 +1,71 @@
-let datos = {};
-
-function continuarTipoEntidad() {
-  const empresa = document.getElementById("empresa").value;
-  const anio = document.getElementById("anio").value;
-
-  if (!empresa || !anio) {
-    alert("Completa los datos obligatorios");
-    return;
-  }
-
-  datos.empresa = empresa;
-  datos.sector = document.getElementById("sector").value;
-  datos.anio = anio;
-
-  document.getElementById("step-datos").style.display = "none";
-  document.getElementById("step1").style.display = "block";
-}
-
-function startForProfit() {
-  document.getElementById("step1").style.display = "none";
-  document.getElementById("step-profit").style.display = "block";
-}
-
-function startNonProfit() {
-  document.getElementById("step1").style.display = "none";
-  document.getElementById("step-nonprofit").style.display = "block";
-}
+let resultadoTexto = "";
 
 function clasificar() {
-  const interes = document.getElementById("interes_publico").value;
-  const tamano = document.getElementById("tamano").value;
+  const tipo = document.getElementById("tipoEntidad").value;
+  const activos = Number(document.getElementById("activos").value);
+  const ingresos = Number(document.getElementById("ingresos").value);
+  const resultado = document.getElementById("resultado");
 
-  if (!interes || !tamano) {
-    alert("Responde todas las preguntas");
+  if (!tipo || !activos || !ingresos) {
+    resultado.innerHTML = "⚠️ Completa todos los campos.";
     return;
   }
 
-  let grupo = "Grupo 2 (NIIF para PYMES)";
+  let grupo = "";
 
-  if (interes === "si" || tamano === "si") {
-    grupo = "Grupo 1 (NIIF Plenas)";
+  if (activos <= 5000 * 49798 && ingresos <= 3000 * 49798) {
+    grupo = "Grupo 3 – Contabilidad simplificada";
+  } else if (activos <= 30000 * 49798) {
+    grupo = "Grupo 2 – NIIF para PYMES";
+  } else {
+    grupo = "Grupo 1 – NIIF plenas";
   }
 
-  mostrarResultado(grupo);
+  resultadoTexto = `
+Tipo de entidad: ${tipo}
+Activos: $${activos.toLocaleString()}
+Ingresos: $${ingresos.toLocaleString()}
+Clasificación: ${grupo}
+`;
+
+  resultado.innerHTML = `
+✅ <strong>Resultado:</strong><br>
+${grupo}
+`;
+
+  document.getElementById("btnPDF").style.display = "block";
 }
 
-function clasificarESAL() {
-  const interes = document.getElementById("interes_publico_esal").value;
-
-  if (!interes) {
-    alert("Selecciona una opción");
-    return;
-  }
-
-  const grupo = interes === "si"
-    ? "Grupo 1 (NIIF Plenas – ESAL)"
-    : "Grupo 3 (Contabilidad Simplificada)";
-
-  mostrarResultado(grupo);
-}
-
-function mostrarResultado(grupo) {
-  datos.grupo = grupo;
-
-  document.getElementById("step-profit").style.display = "none";
-  document.getElementById("step-nonprofit").style.display = "none";
-  document.getElementById("result").style.display = "block";
-
-  document.getElementById("result-text").innerHTML = `
-    <p><strong>Empresa:</strong> ${datos.empresa}</p>
-    <p><strong>Sector:</strong> ${datos.sector || "No indicado"}</p>
-    <p><strong>Año fiscal:</strong> ${datos.anio}</p>
-    <p><strong>Clasificación:</strong> ${grupo}</p>
-  `;
-}
-
-function descargarPDF() {
+function generarPDF() {
   const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
+  const pdf = new jsPDF();
 
-  doc.setFontSize(14);
-  doc.text("MIA – Clasificación NIIF Colombia", 20, 20);
+  pdf.setFontSize(16);
+  pdf.text("MIA", 105, 20, { align: "center" });
 
-  doc.setFontSize(11);
-  doc.text(`Empresa: ${datos.empresa}`, 20, 40);
-  doc.text(`Sector: ${datos.sector || "No indicado"}`, 20, 50);
-  doc.text(`Año fiscal: ${datos.anio}`, 20, 60);
-  doc.text(`Resultado: ${datos.grupo}`, 20, 80);
+  pdf.setFontSize(10);
+  pdf.text(
+    "Métodos de Inteligencia Artificial\nIA aplicada para todos los sectores",
+    105,
+    28,
+    { align: "center" }
+  );
 
-  doc.setFontSize(9);
-  doc.text("Elaborado por MIA – Mario Andrés Narváez Delgado", 20, 280);
+  pdf.line(20, 35, 190, 35);
 
-  doc.save("Clasificacion_NIIF_MIA.pdf");
-}
+  pdf.setFontSize(12);
+  pdf.text("Resultado de Clasificación NIIF", 20, 50);
 
-function resetApp() {
-  location.reload();
+  pdf.setFontSize(10);
+  pdf.text(resultadoTexto, 20, 65);
+
+  pdf.setFontSize(9);
+  pdf.text(
+    "by Mario Andrés Narváez Delgado",
+    105,
+    280,
+    { align: "center" }
+  );
+
+  pdf.save("Clasificacion_NIIF_MIA.pdf");
 }
